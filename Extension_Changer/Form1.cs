@@ -13,6 +13,9 @@ namespace Extension_Changer
 {
     public partial class Form1 : Form
     {
+        bool searchSub = false;
+        string dirName = "";
+        List<string> fileList = new List<string>();
         public Form1()
         {
             InitializeComponent();
@@ -20,8 +23,18 @@ namespace Extension_Changer
 
         private void tb_dir_TextChanged(object sender, EventArgs e)
         {
-            if (Directory.Exists(tb_dir.Text)) btn_change.Enabled = true;
-            else btn_change.Enabled = false;
+            if (Directory.Exists(tb_dir.Text))
+            {
+                dirName = tb_dir.Text;
+                updateLabel();
+                btn_change.Enabled = true;
+                btn_check.Enabled = true;
+            }
+            else 
+            {
+                btn_change.Enabled = false;
+                btn_check.Enabled = false;
+            }
         }
 
         private void btn_dir_Click(object sender, EventArgs e)
@@ -50,6 +63,73 @@ namespace Extension_Changer
             tb_dir.ReadOnly = false;
             btn_dir.Enabled = true;
             MessageBox.Show("Done.");
+        }
+
+        private void cb_sub_CheckedChanged(object sender, EventArgs e)
+        {
+            searchSub = cb_sub.Checked;
+            updateLabel();
+        }
+
+        public int countFiles(string dir, int count = 0) 
+        {
+            foreach (string file in Directory.GetFiles(dir))
+            {
+                if (file.Remove(0, file.Length - tb_from.Text.Length) == tb_from.Text)
+                {
+                    count++;
+                    fileList.Add(file);
+                }
+            }
+            if (searchSub)
+            {
+                foreach (string newDir in Directory.GetDirectories(dir))
+                {
+                    count += countFiles(newDir);
+                }
+            }
+            return count;
+        }
+
+        private void tb_from_TextChanged(object sender, EventArgs e)
+        {
+            updateLabel();
+        }
+
+        public void updateLabel() 
+        {
+            fileList.Clear();
+            lb_filecount.Text = countFiles(dirName).ToString();
+        }
+
+        private void btn_check_Click(object sender, EventArgs e)
+        {
+            fileList.Clear();
+            int num = countFiles(dirName);
+            if (num == 0)
+            {
+                MessageBox.Show("No \"."+tb_from.Text+"\" files found in specified location.");
+            }
+            else 
+            {
+                DialogResult dialogResult = MessageBox.Show("Do you want to save a list of "+num+" \"."+tb_from.Text+"\" files?", "Save File List", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    SaveFileDialog saveDialog = new SaveFileDialog();
+                    saveDialog.Title = "Save";
+                    saveDialog.Filter = "Text Files (*.txt)|*.txt" + "|" +
+                                        "All Files (*.*)|*.*";
+                    if (saveDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        string file = saveDialog.FileName;
+                        System.IO.File.WriteAllLines(file, fileList);
+                    }
+                }
+                else if (dialogResult == DialogResult.No)
+                {
+                    //nothing
+                }
+            }
         }
     }
 }
