@@ -29,11 +29,13 @@ namespace Extension_Changer
                 updateLabel();
                 btn_change.Enabled = true;
                 btn_check.Enabled = true;
+                cb_sub.Enabled = true;
             }
             else 
             {
                 btn_change.Enabled = false;
                 btn_check.Enabled = false;
+                cb_sub.Enabled = false;
             }
         }
 

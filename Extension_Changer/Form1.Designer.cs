@@ -145,6 +145,7 @@
             // cb_sub
             // 
             this.cb_sub.AutoSize = true;
+            this.cb_sub.Enabled = false;
             this.cb_sub.Location = new System.Drawing.Point(22, 96);
             this.cb_sub.Name = "cb_sub";
             this.cb_sub.Size = new System.Drawing.Size(161, 24);
